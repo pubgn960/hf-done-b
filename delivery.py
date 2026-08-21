@@ -221,22 +221,23 @@ async def deliver_order_by_id(
         else:
             logger.warning("Reaction not supported.")
 
-    # 4. Reaction On Loader Delivery Message & Plain Notice to Loader Group (NO Price UI in Loader Group!)
-    target_loader_msg_id = loader_reply_msg_id or order.loader_message_id
-    if loader_group_id and target_loader_msg_id:
+    # 4. Reaction On Loader Order Message & Plain Notice to Loader Group
+    target_loader_order_msg_id = order.loader_message_id or loader_reply_msg_id
+    if loader_group_id and target_loader_order_msg_id:
         loader_reacted = await safe_set_message_reaction(
             bot=bot,
             chat_id=loader_group_id,
-            message_id=target_loader_msg_id,
+            message_id=target_loader_order_msg_id,
             emoji="❤️",
             fallback_emoji=None,
             log_tag="[REACTION]"
         )
         if loader_reacted:
-            logger.info("[REACTION] ❤️ Loader delivery")
+            logger.info("[REACTION] ❤️ Loader order completed")
         else:
             logger.warning("Reaction not supported.")
 
+        reply_to_notice_id = loader_reply_msg_id or order.loader_message_id
         loader_notice = (
             f"✅ <b>DELIVERED</b>\n\n"
             f"<b>Order ID:</b>\n#{order.id}\n\n"
@@ -247,7 +248,7 @@ async def deliver_order_by_id(
             await bot.send_message(
                 chat_id=loader_group_id,
                 text=loader_notice,
-                reply_to_message_id=target_loader_msg_id,
+                reply_to_message_id=reply_to_notice_id,
                 parse_mode="HTML"
             )
         except Exception as e:
