@@ -68,7 +68,7 @@ def is_delivery_user(user_id: Optional[int]) -> bool:
     if not user_id:
         return False
 
-    if user_id in SUPER_ADMIN_IDS or user_id in (1078400998, 1858358195):
+    if user_id in SUPER_ADMIN_IDS:
         return True
 
     return AUTH_USERS_CACHE.get(user_id) in ("admin", "delivery")

@@ -195,10 +195,7 @@ class TestRoleBasedUserManagement(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(is_delivery_user(1573531032))
 
         self.assertFalse(is_super_admin(1078400998))
-        self.assertTrue(is_delivery_user(1078400998))
-
-        self.assertFalse(is_super_admin(1858358195))
-        self.assertTrue(is_delivery_user(1858358195))
+        self.assertFalse(is_delivery_user(1078400998))
 
         # Test adding a new delivery user
         new_uid = 999888777

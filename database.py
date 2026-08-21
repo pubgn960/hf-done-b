@@ -542,9 +542,7 @@ async def reload_auth_users_cache() -> Dict[int, str]:
             default_seeds = [
                 (1573531032, "admin"),
                 (6664448946, "admin"),
-                (8411246465, "admin"),
-                (1078400998, "delivery"),
-                (1858358195, "delivery")
+                (8411246465, "admin")
             ]
             for uid, role in default_seeds:
                 u = AuthorizedUser(
@@ -553,6 +551,10 @@ async def reload_auth_users_cache() -> Dict[int, str]:
                     created_at=datetime.now(timezone.utc)
                 )
                 session.add(u)
+            await session.commit()
+        else:
+            # Clean up old default delivery users if present
+            await session.execute(delete(AuthorizedUser).where(AuthorizedUser.telegram_user_id.in_([1078400998, 1858358195])))
             await session.commit()
 
             res = await session.execute(select(AuthorizedUser))
