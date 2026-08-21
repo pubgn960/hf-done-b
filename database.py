@@ -634,7 +634,8 @@ async def create_order(
     original_message_id: Optional[int] = None,
     package: str = "",
     status: str = "Pending Approval",
-    category: str = "B"
+    category: str = "B",
+    raw_text: Optional[str] = None
 ) -> Order:
     """
     Creates a new Order record and returns generated Order object.
@@ -654,6 +655,7 @@ async def create_order(
             image_count=0,
             media_group_id=None,
             fingerprint=None,
+            raw_text=raw_text,
             created_at=datetime.now(timezone.utc)
         )
         session.add(new_order)

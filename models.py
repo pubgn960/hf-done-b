@@ -130,6 +130,7 @@ class Order(Base):
     image_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     media_group_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
     fingerprint: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, unique=True, index=True)
+    raw_text: Mapped[Optional[str]] = mapped_column(String(4000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

@@ -145,17 +145,23 @@ async def source_group_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     email = extract_email(text_content) or f"order_{message.message_id}@customer.com"
     package_desc = extract_package(text_content)
 
-    # Check Duplicate Pending Order
+    # Check Duplicate Pending Order (Only duplicate if complete message text is 100% identical)
     existing_pending = await get_pending_order_by_email(email)
+    if existing_pending and existing_pending.raw_text:
+        if existing_pending.raw_text.strip() != text_content.strip():
+            logger.info(f"[CLIENT] Message text differs from pending order #{existing_pending.id}. Treating as NEW ORDER.")
+            existing_pending = None
+
     if existing_pending:
-        logger.info(f"[CLIENT] Duplicate pending order detected for email '{email}'. Prompting customer in Client Group.")
+        logger.info(f"[CLIENT] Exact duplicate pending order detected for email '{email}'. Prompting customer in Client Group.")
         dup_order = await create_order(
             email=email,
             client_chat_id=chat.id,
             original_message_id=message.message_id,
             package=package_desc,
             status="Duplicate_Pending",
-            category="B"
+            category="B",
+            raw_text=text_content
         )
         keyboard = InlineKeyboardMarkup([
             [
@@ -194,7 +200,8 @@ async def source_group_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         original_message_id=message.message_id,
         package=package_desc,
         status="Pending Approval",
-        category="B"
+        category="B",
+        raw_text=text_content
     )
 
     payment_group_id = BOT_SETTINGS["payment_review_group_id"] or Config.PAYMENT_REVIEW_GROUP_ID
