@@ -119,8 +119,6 @@ async def post_init(application: Application) -> None:
         BotCommand("source", "Set Client Group"),
         BotCommand("delivery", "Set Loader Group"),
         BotCommand("paymentgroup", "Set Payment Review Group"),
-        BotCommand("b", "Set Category B"),
-        BotCommand("category", "View Group Category"),
         BotCommand("loaderadd", "Add Loader"),
         BotCommand("loaderlist", "List Loaders"),
         BotCommand("loaderremove", "Remove Loader"),
