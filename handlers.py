@@ -603,16 +603,6 @@ async def delivery_group_handler(update: Update, context: ContextTypes.DEFAULT_T
         logger.debug(f"[LOADER] Ignored message in unconfigured chat {chat.id} ({chat.title}).")
         return
 
-    # Role-Based Permission Check for Delivery Users
-    user_id = user.id if user else None
-    if not is_delivery_user(user_id):
-        logger.warning(f"[LOADER] Unauthorized user {user_id} attempted to deliver order in Loader Group {chat.id}.")
-        try:
-            await message.reply_text("⛔ You are not authorized to deliver orders.")
-        except Exception as e:
-            logger.exception(f"[LOADER] Failed to send unauthorized delivery error notice: {e}")
-        return
-
     reply_to = message.reply_to_message
 
     # Rule 1: Message MUST be a reply - Silent Ignore without error messages in chat
@@ -633,6 +623,16 @@ async def delivery_group_handler(update: Update, context: ContextTypes.DEFAULT_T
     # Silent Ignore if reply does not match any valid order in DB
     if not order:
         logger.info("[LOADER] Ignored reply that does not match any active order.")
+        return
+
+    # Role-Based Permission Check for Delivery Users (Checked only on valid order replies)
+    user_id = user.id if user else None
+    if not is_delivery_user(user_id):
+        logger.warning(f"[LOADER] Unauthorized user {user_id} attempted to deliver Order #{order.id} in Loader Group {chat.id}.")
+        try:
+            await message.reply_text("⛔ You are not authorized to deliver orders. Ask Super Admin to add your User ID using /user delivery add <your_id>.")
+        except Exception as e:
+            logger.exception(f"[LOADER] Failed to send unauthorized delivery error notice: {e}")
         return
 
     # Wrong Details Workflow: Check if loader reply contains the word 'wrong' (case-insensitive)
