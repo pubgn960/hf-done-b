@@ -13,7 +13,7 @@ import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple, Dict, Any
-from sqlalchemy import select, func, delete, update
+from sqlalchemy import select, func, delete, update, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import joinedload
 
@@ -80,6 +80,16 @@ async def init_db() -> None:
     logger.info("Initializing database tables...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        # Automatic schema migration: Add raw_text column to orders table if missing
+        try:
+            if "postgres" in Config.DATABASE_URL.lower():
+                await conn.execute(text("ALTER TABLE orders ADD COLUMN IF NOT EXISTS raw_text VARCHAR(4000);"))
+            else:
+                await conn.execute(text("ALTER TABLE orders ADD COLUMN raw_text VARCHAR(4000);"))
+        except Exception as e:
+            logger.debug(f"[MIGRATION] Column raw_text migration check: {e}")
+
     logger.info("Database initialized successfully.")
 
     await get_or_create_settings()
