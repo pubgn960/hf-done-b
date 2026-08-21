@@ -552,11 +552,6 @@ async def reload_auth_users_cache() -> Dict[int, str]:
                 )
                 session.add(u)
             await session.commit()
-        else:
-            # Clean up old default delivery users if present
-            await session.execute(delete(AuthorizedUser).where(AuthorizedUser.telegram_user_id.in_([1078400998, 1858358195])))
-            await session.commit()
-
             res = await session.execute(select(AuthorizedUser))
             users = list(res.scalars().all())
 
